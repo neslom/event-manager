@@ -31,6 +31,12 @@ def clean_phone_numbers(number)
   end
 end
 
+# find busiest registration hours using date/time
+
+def registration_time(time)
+  DateTime.strptime(time, "%m/%d/%y %k:%M").hour
+end
+
 def legislators_by_zipcode(zipcode)
   Sunlight::Congress::Legislator.by_zipcode(zipcode)
 end
@@ -58,7 +64,8 @@ contents.each do |row|
   name = row[:first_name]
   zipcode = clean_zipcode(row[:zipcode])
   numbers = row[:homephone]
-
+  time = row[:regdate]
+puts registration_time(time)
   legislators = legislators_by_zipcode(zipcode)
 
   form_letter = erb_template.result(binding)
