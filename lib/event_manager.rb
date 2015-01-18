@@ -31,10 +31,14 @@ def clean_phone_numbers(number)
   end
 end
 
-# find busiest registration hours using date/time
+@registration_hours = []
 
-def registration_time(time)
+def format_time(time)
   DateTime.strptime(time, "%m/%d/%y %k:%M").hour
+end
+
+def registration_hour_collection
+  @registration_hours.inject({}) { |hash, hour| hash[hour] = @registration_hours.count(hour); hash }
 end
 
 def legislators_by_zipcode(zipcode)
@@ -65,7 +69,11 @@ contents.each do |row|
   zipcode = clean_zipcode(row[:zipcode])
   numbers = row[:homephone]
   time = row[:regdate]
-puts registration_time(time)
+
+  @registration_hours << format_time(time)
+
+  p registration_hour_collection 
+
   legislators = legislators_by_zipcode(zipcode)
 
   form_letter = erb_template.result(binding)
