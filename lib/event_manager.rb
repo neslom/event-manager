@@ -28,13 +28,11 @@ def clean_phone_numbers(number)
 end
 
 @registration_hours = []
-# registration_hours is an array of DateTime objects
-# I need to group by hour and weekday
+
 def format_time(time)
   DateTime.strptime(time, "%m/%d/%y %k:%M")
 end
 
-# find busiest hour and return it
 def group_registration_by_hour
   @registration_hours.group_by { |time| time.hour }
 end
@@ -56,6 +54,7 @@ def print_registration_by_weekday
     puts v[0].strftime("The busiest registration day(s): %A")
   end
 end
+
 def legislators_by_zipcode(zipcode)
   Sunlight::Congress::Legislator.by_zipcode(zipcode)
 end
@@ -87,16 +86,9 @@ contents.each do |row|
 
   @registration_hours << format_time(time)
 
-  #p registration_hour_collection 
-  #p group_registration_by_hour
-  #p @registration_hours
-
   legislators = legislators_by_zipcode(zipcode)
 
   form_letter = erb_template.result(binding)
 
   save_thank_you_letters(id, form_letter)
 end	
-
-print_registration_by_hour
-print_registration_by_weekday
