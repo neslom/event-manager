@@ -9,10 +9,6 @@ def clean_zipcode(zipcode)
   zipcode.to_s.rjust(5, "0")[0..4]
 end
 
-def length?(num)
-  self.length? == num.length 
-end  
-
 def number_formatter(number)
   [3, 7].each { |x| number.insert(x, "-") }
   number
@@ -32,15 +28,34 @@ def clean_phone_numbers(number)
 end
 
 @registration_hours = []
-
+# registration_hours is an array of DateTime objects
+# I need to group by hour and weekday
 def format_time(time)
-  DateTime.strptime(time, "%m/%d/%y %k:%M").hour
+  DateTime.strptime(time, "%m/%d/%y %k:%M")
 end
 
-def registration_hour_collection
-  @registration_hours.inject({}) { |hash, hour| hash[hour] = @registration_hours.count(hour); hash }
+# find busiest hour and return it
+def group_registration_by_hour
+  @registration_hours.group_by { |time| time.hour }
 end
 
+def print_registration_by_hour
+  max_hours = group_registration_by_hour.values.max { |a, b| a.length <=> b.length }.length
+  group_registration_by_hour.select { |k, v| v.length  >= max_hours }.each do |k, v|
+    puts v[0].strftime("The busiest registration hour(s): %l%p")
+  end
+end
+
+def group_registration_by_weekday
+  @registration_hours.group_by { |time| time.wday } 
+end
+
+def print_registration_by_weekday
+  max_days = group_registration_by_weekday.values.max { |a, b| a.length <=> b.length }.length
+  group_registration_by_weekday.select { |k, v| v.length >= max_days }.each do |k, v|
+    puts v[0].strftime("The busiest registration day(s): %A")
+  end
+end
 def legislators_by_zipcode(zipcode)
   Sunlight::Congress::Legislator.by_zipcode(zipcode)
 end
@@ -72,7 +87,9 @@ contents.each do |row|
 
   @registration_hours << format_time(time)
 
-  p registration_hour_collection 
+  #p registration_hour_collection 
+  #p group_registration_by_hour
+  #p @registration_hours
 
   legislators = legislators_by_zipcode(zipcode)
 
@@ -80,3 +97,6 @@ contents.each do |row|
 
   save_thank_you_letters(id, form_letter)
 end	
+
+print_registration_by_hour
+print_registration_by_weekday
